@@ -1,6 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import "firebase/compat/auth";
+import "firebase/compat/storage";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -17,6 +18,7 @@ firebase.initializeApp(firebaseConfig);
 
 const fireStore = firebase.firestore();
 const fireAuth = firebase.auth();
+const fireStorage = firebase.storage();
 const timestamp = firebase.firestore.FieldValue.serverTimestamp;
 
-export { fireStore, fireAuth, timestamp };
+export { fireStore, fireAuth, fireStorage, timestamp };
