@@ -11,6 +11,9 @@ module.exports = {
         red: "#F28080",
         "dark-light": "#f8fafb",
       },
+      zIndex: {
+        2: "2",
+      },
     },
   },
   plugins: [],

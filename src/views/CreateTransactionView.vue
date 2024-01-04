@@ -19,7 +19,7 @@
                   class="text-4xl w-full outline-none"
                   type="number"
                   placeholder="0"
-                  v-model="total"
+                  v-model="transaction.total"
                 />
               </div>
             </label>
@@ -29,14 +29,86 @@
               <div class="w-16 flex items-center justify-end pr-4">
                 <div class="w-8 h-8 bg-primary rounded-full"></div>
               </div>
-              <div class="flex flex-col flex-1 border-b border-gray-300">
+              <div
+                class="flex flex-col flex-1 border-b border-gray-300 relative"
+              >
                 <input
                   id="category"
-                  class="text-2xl w-full outline-none"
+                  class="text-xl w-full outline-none bg-white"
                   type="text"
-                  placeholder="Select a category"
-                  v-model="category"
+                  name=""
+                  disabled
                 />
+                <div
+                  class="absolute top-0 w-full h-72 bg-white rounded-md border border-gray-400 overflow-y-scroll z-2"
+                >
+                  <ul class="py-1 bg-white" v-if="categoriesShow.length > 0">
+                    <li
+                      class="bg-white p-2 mx-2"
+                      v-for="category in categoriesShow"
+                      :key="category.id"
+                      :class="{
+                        'hover:bg-cyan-50 rounded-md transition-all duration-150 ease-in-out cursor-pointer':
+                          category.subCategories.length == 0,
+                      }"
+                      @click="category.isOpen = !category.isOpen"
+                    >
+                      <div class="flex items-center">
+                        <div
+                          class="w-10 h-10 rounded-full overflow-hidden bg-red z-2"
+                        >
+                          <img
+                            class="w-full h-full p-1 object-cover"
+                            :src="category.iconUrl"
+                            alt=""
+                          />
+                        </div>
+                        <div class="flex-1 flex justify-between items-center">
+                          <span class="font-semibold ml-2">{{
+                            category.name
+                          }}</span>
+                          <font-awesome-icon
+                            v-if="category.subCategories.length > 0"
+                            icon="fa-solid fa-chevron-down"
+                            class="transform text-sm transition-all duration-300 ease-in-out"
+                            :class="category.isOpen ? 'rotate-0' : '-rotate-90'"
+                          />
+                        </div>
+                      </div>
+                      <ul
+                        class="mt-2 transition-all duration-300 ease-in-out"
+                        :class="
+                          category.isOpen
+                            ? 'h-auto visible opacity-100'
+                            : 'h-0 invisible opacity-0'
+                        "
+                        v-if="category.subCategories.length > 0"
+                      >
+                        <li
+                          class="bg-white my-1 py-1 pl-2 ml-8 child-category cursor-pointer hover:bg-cyan-50 rounded-md transition-all duration-150 ease-in-out"
+                          v-for="subCategory in category.subCategories"
+                          :key="subCategory.id"
+                          @click.stop=""
+                        >
+                          <div class="flex items-center">
+                            <div
+                              class="w-10 h-10 rounded-full overflow-hidden z-2"
+                            >
+                              <img
+                                class="w-full h-full p-1 object-cover bg-red"
+                                :src="subCategory.iconUrl"
+                                alt=""
+                              />
+                            </div>
+                            <span class="font-semibold ml-2">{{
+                              subCategory.name
+                            }}</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </label>
           </div>
@@ -51,7 +123,7 @@
                   class="text-lg w-full outline-none"
                   type="text"
                   placeholder="Note"
-                  v-model="note"
+                  v-model="transaction.note"
                 />
               </div>
             </label>
@@ -64,9 +136,9 @@
               <div class="flex flex-col flex-1 border-b border-gray-300">
                 <input
                   id="time"
-                  class="text-lg w-full outline-none"
+                  class="text-lg w-full outline-none bg-white"
                   type="date"
-                  v-model="time"
+                  v-model="transaction.time"
                 />
               </div>
             </label>
@@ -113,7 +185,7 @@
                       class="text-lg w-full outline-none"
                       type="text"
                       placeholder="Select a location"
-                      v-model="location"
+                      v-model="transaction.location"
                     />
                   </div>
                 </label>
@@ -128,7 +200,7 @@
                       class="text-lg w-full outline-none"
                       type="text"
                       placeholder="With person"
-                      v-model="withPersons"
+                      v-model="transaction.withPersons"
                     />
                   </div>
                 </label>
@@ -179,24 +251,38 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useUser } from "@/composables/useUser";
 import useCollection from "@/composables/useCollection";
 import useStorage from "@/composables/useStorage";
+import { useRoute } from "vue-router";
 
 export default {
   setup() {
-    const { error, addRecord } = useCollection("transactions");
+    const { addRecord } = useCollection("transactions");
+    const { getOneBy: getTransactionType } = useCollection("transactionType");
+    const { getRecords: getCategories } = useCollection("category");
+
     const { uploadFile, url } = useStorage("transactions");
-    const total = ref(null);
-    const category = ref("");
-    const note = ref("");
-    const time = ref(new Date());
-    const location = ref("");
-    const withPersons = ref("");
     const file = ref(null);
     const errorFile = ref(null);
+
+    const route = useRoute();
+
     const isShowAdvancedForm = ref(false);
+
+    let categoriesShow = reactive([]);
+
+    const transaction = reactive({
+      total: null,
+      category: null,
+      note: null,
+      time: null,
+      location: null,
+      withPersons: null,
+      uid: "",
+      imageUrl: null,
+    });
 
     function showAdvancedForm() {
       isShowAdvancedForm.value = !isShowAdvancedForm.value;
@@ -219,36 +305,76 @@ export default {
 
       if (file.value) {
         await uploadFile(file.value);
-        console.log(url.value);
       }
 
-      const transactionModel = {
-        total: parseInt(total.value),
-        category: category.value,
-        note: note.value,
-        time: time.value,
-        location: location.value,
-        withPersons: withPersons.value,
-        uid: user.value.uid,
-        thumbnail: url.value,
-      };
+      transaction.uid = user.value.uid;
+      transaction.imageUrl = url.value;
 
-      await addRecord(transactionModel);
+      await addRecord(transaction);
     }
+
+    async function loadCategory() {
+      const transactionTypes = await getTransactionType([
+        { field: "name", operator: "==", value: route.params.name },
+      ]);
+
+      const categories = await getCategories([
+        {
+          field: "transactionType",
+          operator: "==",
+          value: transactionTypes.id,
+        },
+        { field: "parentId", operator: "==", value: null },
+      ]);
+
+      for (const category of categories) {
+        const subCategories = await getCategories([
+          { field: "parentId", operator: "==", value: category.id },
+        ]);
+        category.isOpen = false;
+        category.subCategories = subCategories;
+      }
+
+      categoriesShow.push(...categories);
+    }
+
+    loadCategory();
 
     return {
       isShowAdvancedForm,
-      total,
-      category,
-      note,
-      time,
-      location,
-      withPersons,
+      transaction,
+      categoriesShow,
       showAdvancedForm,
       onSubmit,
       onChangeFiles,
-      error,
     };
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.child-category {
+  position: relative;
+  &::before {
+    position: absolute;
+    content: "";
+    width: 20px;
+    height: 1px;
+    @apply -left-3;
+    top: calc(50% - 1px);
+    @apply bg-dark;
+    z-index: 1;
+  }
+
+  &::after {
+    position: absolute;
+    content: "";
+    width: 1px;
+    height: 52px;
+    @apply -left-3;
+    top: calc(50% - 52px);
+    @apply bg-dark;
+    z-index: 1;
+  }
+}
+</style>

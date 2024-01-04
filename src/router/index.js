@@ -17,11 +17,11 @@ const routes = [
     path: "/",
     name: "Home",
     meta: {
-      text: "Hey, Sky Ambert",
       leading: true,
     },
     component: () =>
       import(/* webpackChunkName: "home" */ "../views/IndexView.vue"),
+    beforeEnter: requireAuth,
   },
   {
     path: "/register",
@@ -81,7 +81,7 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/new-transaction",
+    path: "/new-transaction/:name",
     name: "NewTransaction",
     meta: {
       text: "Add Transaction",

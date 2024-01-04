@@ -13,7 +13,7 @@
               alt="User's avatar"
             />
           </div>
-          <div class="font-bold text-xl ml-4">{{ meta.text }}</div>
+          <div class="font-bold text-xl ml-4">{{ user.displayName }}</div>
         </div>
         <div class="flex">
           <ul>
@@ -30,11 +30,15 @@
 <script>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { useUser } from "@/composables/useUser";
 export default {
   setup() {
     const route = useRoute();
+    const { getUser } = useUser();
+    const { user } = getUser();
     return {
       meta: computed(() => route.meta),
+      user,
     };
   },
 };
