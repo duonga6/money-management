@@ -2,7 +2,7 @@
   <div class="register-container">
     <div class="mt-8">
       <div class="container mx-auto px-8">
-        <!-- Start Form -->
+        <!-- Form -->
         <form class="flex flex-col space-y-6" @submit.prevent="onSubmit">
           <div class="row">
             <label class="flex flex-col" for="email-address">
@@ -40,19 +40,17 @@
               :disabled="isPending"
             >
               <span v-if="!isPending">Sign In</span>
-              <span v-else>Loading...</span>
+              <span v-else><component :is="'loading-page'"></component></span>
             </button>
           </div>
         </form>
-        <!-- End Form -->
 
-        <!-- Start Error -->
+        <!-- Error -->
         <div class="text-left mt-2 text-red" v-if="error">
           <span> {{ error }}</span>
         </div>
-        <!-- End Error -->
 
-        <!-- Start Direction -->
+        <!-- Direction -->
         <div class="text-center w-full mt-6">
           <span class="font-semibold">I'm haven't account. </span>
           <span class="font-semibold text-primary">
@@ -61,7 +59,6 @@
             >
           </span>
         </div>
-        <!-- End Direction -->
       </div>
     </div>
   </div>

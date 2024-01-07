@@ -2,7 +2,7 @@
   <div class="register-container">
     <div class="mt-8">
       <div class="container mx-auto px-8">
-        <!-- Start Form -->
+        <!-- Form -->
         <form class="flex flex-col space-y-6" @submit.prevent="onSubmit">
           <div class="row">
             <label class="flex flex-col" for="full-name">
@@ -52,19 +52,19 @@
               :disabled="isPending"
             >
               <span v-if="!isPending">Sign Up</span>
-              <span v-else>Loading...</span>
+              <template v-else>
+                <component :is="'loading-page'"></component>
+              </template>
             </button>
           </div>
         </form>
-        <!-- End Form -->
 
-        <!-- Start Error -->
+        <!-- Error -->
         <div class="text-left mt-2 text-red" v-if="error">
           <span> {{ error }}</span>
         </div>
-        <!-- End Error -->
 
-        <!-- Start Direction -->
+        <!-- Direction -->
         <div class="text-center w-full mt-6">
           <span class="font-semibold">I'm already a member. </span>
           <span class="font-semibold text-primary">
@@ -73,7 +73,6 @@
             >
           </span>
         </div>
-        <!-- End Direction -->
       </div>
     </div>
   </div>
@@ -83,6 +82,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useSignUp } from "@/composables/useSignUp";
+
 export default {
   setup() {
     const router = useRouter();
@@ -94,7 +94,9 @@ export default {
 
     async function onSubmit() {
       await signUp(email.value, password.value, fullName.value);
-      if (!error.value) router.push({ name: "Home", params: {} });
+      if (!error.value) {
+        router.push({ name: "Home", params: {} });
+      }
     }
     return { onSubmit, fullName, email, password, isPending, error };
   },

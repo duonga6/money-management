@@ -5,7 +5,7 @@ export const PROFILE_OPTIONS = [
     name: "My wallet",
     icon: "t2ico-wallet",
     route: {
-      name: "Home",
+      name: "Wallet",
       params: {},
     },
   },

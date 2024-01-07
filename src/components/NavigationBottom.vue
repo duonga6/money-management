@@ -6,78 +6,28 @@
     <div class="container mx-auto px-8 h-full">
       <ul class="flex justify-between h-full items-center">
         <li v-for="navItem in navItems" :key="navItem.name">
-          <router-link :to="navItem.route">
+          <router-link :to="navItem.route" class="p-2">
             <i class="t2ico text-xl" :class="navItem.icon"></i>
           </router-link>
         </li>
       </ul>
     </div>
-    <div
-      data-plus-btn-bg
-      class="absolute top-0 left-1/2 transform -translate-x-1/2 bg-red"
-    ></div>
-
     <!-- Button Add Transaction -->
-    <div
-      @click="isShowAddOptions = !isShowAddOptions"
-      class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex justify-center items-center"
-    >
-      <i
-        class="t2ico t2ico-plus font-bold text-white text-xl transition-all duration-150 ease-linear"
-        :class="{ 'rotate-45 ': isShowAddOptions }"
-      ></i>
-
-      <ul
-        class="absolute bottom-full mb-3 flex flex-col space-y-3 transform transition-all duration-150 ease-linear"
-        :class="{
-          'translate-y-20 opacity-0 invisible': !isShowAddOptions,
-          'translate-y-0 opacity-100 visible': isShowAddOptions,
-        }"
-      >
-        <li class="relative">
-          <router-link
-            :to="{
-              name: 'NewTransaction',
-              params: { name: 'Income' },
-            }"
-            class="flex justify-center items-center w-12 h-12 rounded-full bg-green"
-          >
-            <i class="t2ico t2ico-plus font-bold text-white text-xl"></i>
-          </router-link>
-          <span
-            class="absolute right-full mr-4 top-1/2 transform -translate-y-1/2 bg-dark text-white px-3 py-1 rounded-md"
-            >Income</span
-          >
-        </li>
-        <li class="relative">
-          <router-link
-            :to="{
-              name: 'NewTransaction',
-              params: { name: 'Expense' },
-            }"
-            class="flex justify-center items-center w-12 h-12 rounded-full bg-red"
-          >
-            <font-awesome-icon icon="fa-solid fa-minus" class="text-white" />
-          </router-link>
-          <span
-            class="absolute right-full mr-4 top-1/2 transform -translate-y-1/2 bg-dark text-white px-3 py-1 rounded-md"
-            >Expense</span
-          >
-        </li>
-      </ul>
-    </div>
+    <template v-if="routeName == 'Wallet'"></template>
+    <component v-else :is="'add-transaction-btn'"></component>
   </footer>
 </template>
 
 <script>
-import { reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { NAV_ITEMS_BOTTOM } from "@/constants";
+import { useRoute } from "vue-router";
 export default {
   setup() {
     const navItems = reactive(NAV_ITEMS_BOTTOM);
-    const isShowAddOptions = ref(false);
+    const route = useRoute();
 
-    return { navItems, isShowAddOptions };
+    return { navItems, routeName: computed(() => route.name) };
   },
 };
 </script>
@@ -94,16 +44,6 @@ export default {
         margin-left: 8%;
       }
     }
-  }
-
-  div[data-plus-btn-bg] {
-    @apply absolute bg-dark-light;
-
-    width: 56px;
-    height: 28px;
-
-    border-bottom-left-radius: 60px;
-    border-bottom-right-radius: 60px;
   }
 }
 </style>

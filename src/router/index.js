@@ -81,6 +81,17 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
+    path: "/wallet",
+    name: "Wallet",
+    meta: {
+      text: "Wallet",
+      leading: false,
+    },
+    component: () =>
+      import(/* webpackChunkName: "wallet" */ "../views/WalletView.vue"),
+    beforeEnter: requireAuth,
+  },
+  {
     path: "/new-transaction/:name",
     name: "NewTransaction",
     meta: {
